@@ -81,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                new GetPicturesAsync().execute(pictureUrls[0]);
+
                 Log.d("message", "Clicked!" + newUrl);
-                iv.setImageBitmap(bm);
+
             }
         });
 
@@ -91,14 +91,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("message", "Clicked!");
-                try {
-                    Thread.sleep(1000);
-                    new GetPicturesAsync().execute(pictureUrls[1]);
-                    Thread.sleep(1000);
-                    iv.setImageBitmap(bm);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
             }
         });
 
