@@ -28,10 +28,11 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     String[] names;
-    String[] pictureUrls;
+    ArrayList<String> pictureUrls;
     Boolean flag = false;
     String newUrl;
     Bitmap bm;
+    int location = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         final TextView keyword = findViewById(R.id.textView2);
         final ImageView iv = findViewById(R.id.imageView);
+        pictureUrls = new ArrayList<>();
 
         if ( isConn() ) {
 
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-
+                location = 0;
                 AlertDialog.Builder keys = new AlertDialog.Builder(MainActivity.this);
                 keys.setTitle("Choose a Keyword")
                 .setItems(names, new DialogInterface.OnClickListener() {
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                         buildUrl(names[which]);
                         try {
                             Thread.sleep(1000);
-                            new GetPicturesAsync().execute(pictureUrls[0]);
+                            new GetPicturesAsync().execute(pictureUrls.get(0));
                             Thread.sleep(1000);
                             iv.setImageBitmap(bm);
                         } catch (InterruptedException e) {
@@ -80,9 +82,15 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.imageView2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-                Log.d("message", "Clicked!" + newUrl);
+                if (pictureUrls.size() > 0){
+                    location--;
+                    if (location < 0){
+                        location = pictureUrls.size()-1;
+                    }
+                    Log.d("message", "Clicked!" + pictureUrls.get(location));
+                    new GetPicturesAsync().execute(pictureUrls.get(location));
+                    iv.setImageBitmap(bm);
+                }
 
             }
         });
@@ -90,8 +98,15 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.imageView3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("message", "Clicked!");
-
+                if (pictureUrls.size() > 0){
+                    location++;
+                    if (location > pictureUrls.size()-1){
+                        location = 0;
+                    }
+                    Log.d("message", "Clicked!" + pictureUrls.get(location));
+                    new GetPicturesAsync().execute(pictureUrls.get(location));
+                    iv.setImageBitmap(bm);
+                }
             }
         });
 
@@ -141,11 +156,11 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d("message", "The results are " + names[0]);
                        } else {
                             if ( line != null ) {
-                                pictureUrls = line.split("\\n");
-                                Log.d("message", "The results are " + pictureUrls.length);
+                                pictureUrls.add(line);
                             }
                         }
                     }
+                    Log.d("message", "The results are " + pictureUrls.size());
                 }
             } catch (MalformedURLException e) {
                 e.printStackTrace();
