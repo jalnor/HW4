@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                             if ( pictureUrls.size() > 0 ) {
                                 gpa.setUrl(pictureUrls.get(0));
                                 gpa.callAsync();
-                                Thread.sleep(1000);
+                                Thread.sleep(2000);
                                 bm = gpa.getBitmap();
 
                             } else {
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         gpa.setUrl(pictureUrls.get(location));
                         gpa.callAsync();
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
                         bm = gpa.getBitmap();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         gpa.setUrl(pictureUrls.get(location));
                         gpa.callAsync();
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
                         bm = gpa.getBitmap();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
