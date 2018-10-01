@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 location = 0;
+                pictureUrls.clear();
                 AlertDialog.Builder keys = new AlertDialog.Builder(MainActivity.this);
                 keys.setTitle("Choose a Keyword")
                 .setItems(names, new DialogInterface.OnClickListener() {
