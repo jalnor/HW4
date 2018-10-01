@@ -1,3 +1,8 @@
+<!--
+Assignment: HW4
+Page: activity_main.xml
+Authors: Jarrod Norris, Andrew Schlesinger
+-->
 <resources>
     <string name="app_name">Main Activity</string>
     <string name="btn1">Go</string>

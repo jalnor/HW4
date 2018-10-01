@@ -1,3 +1,9 @@
+/*
+Assignment: HW4
+Page: MainActivity.java
+Authors: Jarrod Norris, Andrew Schlesinger
+ */
+
 package com.example.gameon.hw4;
 
 import android.content.Context;

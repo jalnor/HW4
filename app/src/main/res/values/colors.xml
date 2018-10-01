@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+Assignment: HW4
+Page: activity_main.xml
+Authors: Jarrod Norris, Andrew Schlesinger
+-->
 <resources>
     <color name="colorPrimary">#000000</color>
     <color name="colorPrimaryDark">#000000</color>
