@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,7 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +40,13 @@ public class MainActivity extends AppCompatActivity {
 
         final TextView keyword = findViewById(R.id.textView2);
         final ImageView iv = findViewById(R.id.imageView);
+        iv.setImageDrawable(null);
+        final ImageView iv2 = findViewById(R.id.imageView2);
+        final ImageView iv3 = findViewById(R.id.imageView3);
+        iv2.setEnabled(false);
+        iv3.setEnabled(false);
+
+
         pictureUrls = new ArrayList<>();
 
         if ( isConn() ) {
@@ -65,9 +71,21 @@ public class MainActivity extends AppCompatActivity {
                         buildUrl(names[which]);
                         try {
                             Thread.sleep(1000);
-                            new GetPicturesAsync().execute(pictureUrls.get(0));
+                            Log.d("message", "This is the size of picturesUrl " + pictureUrls.size());
+                            if ( pictureUrls.size() > 0 ) {
+                                new GetPicturesAsync().execute(pictureUrls.get(0));
+                            } else {
+                                iv.setImageDrawable(null);
+                            }
                             Thread.sleep(1000);
-                            iv.setImageBitmap(bm);
+                            if ( bm != null && pictureUrls.size() > 0 ) {
+                                if ( pictureUrls.size() > 1 ) {
+                                    iv2.setEnabled(true);
+                                    iv3.setEnabled(true);
+                                }
+                                iv.setImageBitmap(bm);
+                            }
+
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -80,33 +98,53 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        findViewById(R.id.imageView2).setOnClickListener(new View.OnClickListener() {
+        iv2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (pictureUrls.size() > 0){
-                    location--;
-                    if (location < 0){
-                        location = pictureUrls.size()-1;
+                    Log.d("message", "Location is " + location);
+                    if (location > 0){
+                        location--;
+                        try {
+                            new GetPicturesAsync().execute(pictureUrls.get(location));
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        iv.setImageBitmap(bm);
+                    } else {
+                        iv2.setEnabled(false);
                     }
-                    Log.d("message", "Clicked!" + pictureUrls.get(location));
-                    new GetPicturesAsync().execute(pictureUrls.get(location));
-                    iv.setImageBitmap(bm);
+                    //Log.d("message", "Clicked!" + pictureUrls.get(location));
+
+                } else {
+                    iv2.setEnabled(false);
                 }
 
             }
         });
 
-        findViewById(R.id.imageView3).setOnClickListener(new View.OnClickListener() {
+        iv3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (pictureUrls.size() > 0){
-                    location++;
-                    if (location > pictureUrls.size()-1){
-                        location = 0;
+                    Log.d("message", "Location is " + location);
+                    if (location < (pictureUrls.size() - 1) ){
+                        location++;
+                        try {
+                            new GetPicturesAsync().execute(pictureUrls.get(location));
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        iv.setImageBitmap(bm);
                     }
-                    Log.d("message", "Clicked!" + pictureUrls.get(location));
-                    new GetPicturesAsync().execute(pictureUrls.get(location));
-                    iv.setImageBitmap(bm);
+                    else {
+                        iv3.setEnabled(false);
+                    }
+                    //Log.d("message", "Clicked!" + pictureUrls.get(location));
+                } else {
+                    iv3.setEnabled(false);
                 }
             }
         });
@@ -137,9 +175,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
 
-            BufferedReader br;
+            BufferedReader br = null;
             HttpURLConnection huc = null;
-            int count = 0;
 
             try {
 
@@ -170,10 +207,15 @@ public class MainActivity extends AppCompatActivity {
             } finally {
                 if ( huc != null ) {
                     huc.disconnect();
-                }                
+                }
+                if ( br != null ) {
+                    try {
+                        br.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-
-            //Log.d("message", "The results are ");
             return null;
         }
     }
@@ -185,21 +227,34 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Bitmap doInBackground(String... strings) {
-
+            HttpURLConnection connection = null;
+            InputStream input = null;
             try {
                     URL url = new URL(strings[0]);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);
                     connection.connect();
-                    InputStream input = connection.getInputStream();
+                    input = connection.getInputStream();
                     Bitmap myBitmap = BitmapFactory.decodeStream(input);
                     bm = myBitmap;
+
                 return myBitmap;
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if ( connection != null ) {
+                    connection.disconnect();
+                }
+                if ( input != null ) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             return null;
