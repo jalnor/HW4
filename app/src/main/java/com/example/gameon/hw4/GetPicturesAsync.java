@@ -1,3 +1,8 @@
+/*
+Assignment: HW4
+Page: MainActivity.java
+Authors: Jarrod Norris, Andrew Schlesinger
+ */
 package com.example.gameon.hw4;
 
 import android.content.Context;
@@ -14,34 +19,22 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class GetPicturesAsync  {
+public class GetPicturesAsync extends AsyncTask<String, Void, Bitmap> {
 
-
-    private String url;
-    private Bitmap bm;
-
-    public void setUrl(String url) {
-        this.url = url;
+    public interface MyAsyncTaskListener {
+        void onPreExecuteConcluded();
+        void onPostExecuteConcluded(Bitmap result);
     }
 
-    public GetPicturesAsync() {
-        this.url = null;
-    }
-    public void callAsync() {
-        new getAsync().execute(url);
-    }
+    private MyAsyncTaskListener mListener;
 
-    public Bitmap getBitmap() {
-        return bm;
+    final public void setListener(MyAsyncTaskListener listener) {
+        mListener = listener;
     }
 
-
-    private class getAsync extends AsyncTask<String, Integer, Bitmap> {
-
-
-        @Override
-        protected Bitmap doInBackground(String... strings) {
-            HttpURLConnection connection = null;
+    @Override
+    final protected Bitmap doInBackground(String... strings) {
+        HttpURLConnection connection = null;
             InputStream input = null;
             Log.d("message", "This is string url in GetPicturesAsync  " + strings[0]);
             try {
@@ -51,19 +44,6 @@ public class GetPicturesAsync  {
                 connection.connect();
                 input = connection.getInputStream();
                 Bitmap myBitmap = BitmapFactory.decodeStream(input);
-
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                myBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-                Log.d("message", "This is the length of the byte array in getpicturesasync  " + byteArray.length);
-                Log.d("message", "This is the context in GetPicturesAsync ");
-
-
-//                Intent i = new Intent(context, MainActivity.class);
-//                i.putExtra("image", byteArray);
-//                context.startActivity(i);
-
-                bm = myBitmap;
                 return myBitmap;
 
             } catch (MalformedURLException e) {
@@ -81,10 +61,19 @@ public class GetPicturesAsync  {
                         e.printStackTrace();
                     }
                 }
-            }
-
-            return null;
-        }
+            }return null;
     }
 
+    @Override
+    protected void onPreExecute() {
+        if (mListener != null)
+            mListener.onPreExecuteConcluded();
+    }
+
+
+    @Override
+    protected void onPostExecute(Bitmap result) {
+       mListener.onPostExecuteConcluded(result);
+    }
 }
+

@@ -18,6 +18,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,14 +40,14 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> pictureUrls;
     Boolean flag = false;
     String newUrl;
-    Bitmap bm;
     int location = 0;
+    AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final GetPicturesAsync gpa = new GetPicturesAsync();
+
         final TextView keyword = findViewById(R.id.textView2);
         final ImageView iv = findViewById(R.id.imageView);
         iv.setImageDrawable(null);
@@ -54,6 +55,14 @@ public class MainActivity extends AppCompatActivity {
         final ImageView iv3 = findViewById(R.id.imageView3);
         iv2.setEnabled(false);
         iv3.setEnabled(false);
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        builder.setTitle("Loading").setView(inflater.inflate(R.layout.dialog_bar, null));
+
+       dialog = builder.create();
 
 
         pictureUrls = new ArrayList<>();
@@ -84,23 +93,15 @@ public class MainActivity extends AppCompatActivity {
                             Thread.sleep(1000);
                             Log.d("message", "This is the size of picturesUrl " + pictureUrls.size());
                             if ( pictureUrls.size() > 0 ) {
-                                gpa.setUrl(pictureUrls.get(0));
-                                gpa.callAsync();
-                                Thread.sleep(2000);
-                                bm = gpa.getBitmap();
-
+                                getPicture(pictureUrls.get(0));
                             } else {
                                 iv.setImageDrawable(null);
                             }
                             Thread.sleep(1000);
-                            if ( bm != null && pictureUrls.size() > 0 ) {
-                                if ( pictureUrls.size() > 1 ) {
-                                    iv2.setEnabled(true);
-                                    iv3.setEnabled(true);
-                                }
-                                iv.setImageBitmap(bm);
+                            if ( pictureUrls.size() > 1 ) {
+                                iv2.setEnabled(true);
+                                iv3.setEnabled(true);
                             }
-
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -124,16 +125,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         location = pictureUrls.size() - 1;
                     }
-                    try {
-                        gpa.setUrl(pictureUrls.get(location));
-                        gpa.callAsync();
-                        Thread.sleep(2000);
-                        bm = gpa.getBitmap();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    iv.setImageBitmap(bm);
-
+                    getPicture(pictureUrls.get(location));
                 } else {
                     iv2.setEnabled(false);
                 }
@@ -152,15 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     else {
                        location = 0;
                     }
-                    try {
-                        gpa.setUrl(pictureUrls.get(location));
-                        gpa.callAsync();
-                        Thread.sleep(2000);
-                        bm = gpa.getBitmap();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    iv.setImageBitmap(bm);
+                    getPicture(pictureUrls.get(location));
                 } else {
                     iv3.setEnabled(false);
                 }
@@ -169,6 +153,26 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private void getPicture(String link){
+        GetPicturesAsync picturesAsync = new GetPicturesAsync();
+        picturesAsync.setListener(new GetPicturesAsync.MyAsyncTaskListener() {
+            @Override
+            public void onPreExecuteConcluded() {
+                // start progess
+                dialog.show();
+            }
+
+            @Override
+            public void onPostExecuteConcluded(Bitmap result) {
+                // stop progess
+                dialog.hide();
+                ((ImageView)findViewById(R.id.imageView)).setImageBitmap(result);
+            }
+        });
+        picturesAsync.execute(link);
+    }
+
 
     private boolean isConn() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -237,47 +241,4 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
-
-
-
-//    private class GetPicturesAsync extends AsyncTask<String, Void, Bitmap>  {
-//
-//
-//        @Override
-//        protected Bitmap doInBackground(String... strings) {
-//            HttpURLConnection connection = null;
-//            InputStream input = null;
-//            try {
-//                    URL url = new URL(strings[0]);
-//                    connection = (HttpURLConnection) url.openConnection();
-//                    connection.setDoInput(true);
-//                    connection.connect();
-//                    input = connection.getInputStream();
-//                    Bitmap myBitmap = BitmapFactory.decodeStream(input);
-//                    bm = myBitmap;
-//
-//                return myBitmap;
-//
-//            } catch (MalformedURLException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } finally {
-//                if ( connection != null ) {
-//                    connection.disconnect();
-//                }
-//                if ( input != null ) {
-//                    try {
-//                        input.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//
-//            return null;
-//        }
-//    }
-
-
 }
